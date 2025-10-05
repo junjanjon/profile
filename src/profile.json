@@ -125,8 +125,14 @@
         {
           "filename": "infj-panda.png",
           "path": "./public/img/infj-panda.png",
-          "alt": "MBTI診断",
+          "alt": "MBTI診断1",
           "caption": "INFJ"
+        },
+        {
+          "filename": "intp-t.png",
+          "path": "./public/img/intp-t.png",
+          "alt": "MBTI診断2",
+          "caption": "INTP-T"
         }
       ]
     },
