@@ -112,6 +112,24 @@
         }
       ]
     },
+    "images": {
+      "title": "画像ギャラリー",
+      "icon": "📸",
+      "gallery": [
+        {
+          "filename": "personal.png",
+          "path": "./public/img/personal.png",
+          "alt": "パーソナル画像",
+          "caption": "私の個人的な画像です"
+        },
+        {
+          "filename": "infj-panda.png",
+          "path": "./public/img/infj-panda.png",
+          "alt": "INFJ パンダ",
+          "caption": "INFJ性格タイプを表現したパンダのイラスト"
+        }
+      ]
+    },
     "contact": {
       "email": "[メールアドレス]",
       "social": "[SNSリンク]"
