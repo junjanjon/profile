@@ -24,10 +24,10 @@
             <div class="w-24 h-24 bg-indigo-200 rounded-full mx-auto mb-4 flex items-center justify-center text-4xl font-bold text-indigo-700">
                 👤
             </div>
-            <h1 class="text-4xl font-extrabold text-gray-900 mb-2">
+            <h1 id="profile-title" class="text-4xl font-extrabold text-gray-900 mb-2">
                 パーソナル プロフィール
             </h1>
-            <p class="text-xl text-gray-500">
+            <p id="profile-subtitle" class="text-xl text-gray-500">
                 私の小さな世界へようこそ
             </p>
         </header>
@@ -36,155 +36,142 @@
         <div class="mb-10 border-t border-indigo-100"></div>
 
         <!-- 1. 自己紹介セクション -->
-        <section class="mb-12">
-            <h2 class="text-2xl sm:text-3xl font-bold text-indigo-700 mb-4 flex items-center">
-                <span class="mr-3">👋</span> 自己紹介 (About Me)
-            </h2>
-            <div class="bg-indigo-50 p-6 rounded-2xl border-l-4 border-indigo-400">
-                <p class="text-gray-700 leading-relaxed text-lg">
-                    こんにちは！私は好奇心旺盛な人間で、新しいことへの挑戦が大好きです。趣味は幅広く、デジタルなものからアナログなものまで楽しんでいます。特に、最近は**[具体的なスキルや興味]**の勉強に熱中しており、知識を深めることに喜びを感じています。
-                </p>
-                <p class="mt-4 text-gray-700 leading-relaxed text-lg">
-                    座右の銘は「**[座右の銘や好きな言葉]**」。日々、この言葉を胸に前向きに過ごしています。
-                </p>
-            </div>
+        <section id="about-section" class="mb-12">
+            <!-- JavaScript で動的に生成されます -->
         </section>
 
         <!-- 2. 趣味セクション -->
-        <section class="mb-12">
-            <h2 class="text-2xl sm:text-3xl font-bold text-indigo-700 mb-6 flex items-center">
-                <span class="mr-3">🎨</span> 趣味 (Hobbies)
-            </h2>
-            <ul class="space-y-3">
-                <li class="flex items-start text-lg text-gray-700">
-                    <span class="text-indigo-500 font-bold mr-3 mt-1">✓</span>
-                    <span class="flex-1">
-                        **プログラミング:** 特にフロントエンド開発が好きで、美しいUI/UXを追求しています。
-                    </span>
-                </li>
-                <li class="flex items-start text-lg text-gray-700">
-                    <span class="text-indigo-500 font-bold mr-3 mt-1">✓</span>
-                    <span class="flex-1">
-                        **散歩:** 知らない街や路地裏を気の向くままに歩き、新しい発見をすること。
-                    </span>
-                </li>
-                <li class="flex items-start text-lg text-gray-700">
-                    <span class="text-indigo-500 font-bold mr-3 mt-1">✓</span>
-                    <span class="flex-1">
-                        **カフェ巡り:** 落ち着いた空間で読書をしたり、考え事をしたりする時間。
-                    </span>
-                </li>
-            </ul>
+        <section id="hobbies-section" class="mb-12">
+            <!-- JavaScript で動的に生成されます -->
         </section>
 
-        <!-- 3. 好み・好きなものセクション (Wiki風のレスポンシブな表形式 - 3段構成) -->
-        <section>
-            <h2 class="text-2xl sm:text-3xl font-bold text-indigo-700 mb-6 flex items-center">
-                <span class="mr-3">🌟</span> 私の好み (My Preferences)
-            </h2>
-
-            <!-- Wiki風テーブル/定義リスト風コンテナ -->
-            <div class="space-y-4">
-
-                <!-- 項目1: 映画・エンタメ -->
-                <div class="flex flex-col md:flex-row bg-gray-50 p-4 rounded-xl shadow-sm border border-gray-200">
-                    <!-- 項目名 (PC: 1/4幅) -->
-                    <div class="md:w-1/4 font-bold text-indigo-700 text-lg mb-2 md:mb-0 flex items-center">
-                        <span class="text-yellow-500 mr-2 text-xl">🎬</span> 映画
-                    </div>
-                    <!-- 内容 (PC: 3/4幅): 3段構成 (カテゴリ - 作品名 - 思い) -->
-                    <div class="md:w-3/4 flex flex-col space-y-3">
-                        <!-- 1つ目の作品 -->
-                        <div class="text-gray-700">
-                            <!-- 作品名/サブタイトル -->
-                            <p class="font-semibold text-gray-900 mb-0.5 text-base">
-                                作品名: **『ブレードランナー (1982)』**
-                            </p>
-                            <!-- 詳細な思い/説明 -->
-                            <p class="text-gray-600 text-sm leading-relaxed">
-                                SFやファンタジーの奥深い世界観に惹かれます。特に、思想的なテーマを持つ作品が好きで、この作品の近未来の退廃的な美しさが好みです。
-                            </p>
-                        </div>
-                        <!-- 2つ目の作品例 (必要に応じて追加してください) -->
-                        <div class="text-gray-700 pt-3 border-t border-gray-200">
-                            <p class="font-semibold text-gray-900 mb-0.5 text-base">
-                                作品名: **[別の好きな映画]**
-                            </p>
-                            <p class="text-gray-600 text-sm leading-relaxed">
-                                [その作品についてのコメントや好きな理由を記述]
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 項目2: 本・文学 -->
-                <div class="flex flex-col md:flex-row bg-gray-50 p-4 rounded-xl shadow-sm border border-gray-200">
-                    <div class="md:w-1/4 font-bold text-indigo-700 text-lg mb-2 md:mb-0 flex items-center">
-                        <span class="text-green-500 mr-2 text-xl">📚</span> 本・作家
-                    </div>
-                    <div class="md:w-3/4 flex flex-col space-y-3">
-                        <div class="text-gray-700">
-                            <p class="font-semibold text-gray-900 mb-0.5 text-base">
-                                作家名: **夏目漱石**
-                            </p>
-                            <p class="text-gray-600 text-sm leading-relaxed">
-                                古典文学を繰り返し読みます。特に漱石の作品は、読むたびに新しい発見があり、登場人物の心理描写が深く魅力的です。
-                            </p>
-                        </div>
-                        <div class="text-gray-700 pt-3 border-t border-gray-200">
-                            <p class="font-semibold text-gray-900 mb-0.5 text-base">
-                                ジャンル: **海外ノンフィクション**
-                            </p>
-                            <p class="text-gray-600 text-sm leading-relaxed">
-                                最近、挑戦中です。世界情勢や歴史に関する深い知見を得るのが好きです。
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 項目3: 音楽 -->
-                <div class="flex flex-col md:flex-row bg-gray-50 p-4 rounded-xl shadow-sm border border-gray-200">
-                    <div class="md:w-1/4 font-bold text-indigo-700 text-lg mb-2 md:mb-0 flex items-center">
-                        <span class="text-red-500 mr-2 text-xl">🎶</span> 音楽
-                    </div>
-                    <div class="md:w-3/4 flex flex-col space-y-3">
-                        <div class="text-gray-700">
-                            <p class="font-semibold text-gray-900 mb-0.5 text-base">
-                                ジャンル: **ジャズ、エレクトロニカ**
-                            </p>
-                            <p class="text-gray-600 text-sm leading-relaxed">
-                                気分に合わせて聴いています。特に集中したい作業中は、アンビエントな音楽をBGMとして流しています。
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 項目4: 食べ物 -->
-                <div class="flex flex-col md:flex-row bg-gray-50 p-4 rounded-xl shadow-sm border border-gray-200">
-                    <div class="md:w-1/4 font-bold text-indigo-700 text-lg mb-2 md:mb-0 flex items-center">
-                        <span class="text-orange-500 mr-2 text-xl">🍜</span> 食べ物
-                    </div>
-                    <div class="md:w-3/4 flex flex-col space-y-3">
-                        <div class="text-gray-700">
-                            <p class="font-semibold text-gray-900 mb-0.5 text-base">
-                                料理: **ラーメン / エスニック料理**
-                            </p>
-                            <p class="text-gray-600 text-sm leading-relaxed">
-                                国民食であるラーメンと、刺激的なエスニック料理に目がないです。特にタイの[具体的な料理名]には強いこだわりがあります。
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <!-- 3. 好み・好きなものセクション -->
+        <section id="preferences-section">
+            <!-- JavaScript で動的に生成されます -->
         </section>
         
         <!-- フッター (連絡先など) -->
-        <footer class="mt-12 text-center text-gray-500 pt-8 border-t border-indigo-100">
-            <p class="text-sm">
-                連絡先：[メールアドレス] / [SNSリンク]
-            </p>
+        <footer id="contact-footer" class="mt-12 text-center text-gray-500 pt-8 border-t border-indigo-100">
+            <!-- JavaScript で動的に生成されます -->
         </footer>
     </div>
+
+    <!-- JavaScript でプロフィールデータを読み込み、動的に表示 -->
+    <script>
+        // JSONデータを読み込む関数
+        async function loadProfile() {
+            try {
+                const response = await fetch('./profile.json');
+                const data = await response.json();
+                const profile = data.profile;
+                
+                // ヘッダー情報の設定
+                document.getElementById('profile-title').textContent = profile.title;
+                document.getElementById('profile-subtitle').textContent = profile.subtitle;
+                
+                // 自己紹介セクションの生成
+                generateAboutSection(profile.about);
+                
+                // 趣味セクションの生成
+                generateHobbiesSection(profile.hobbies);
+                
+                // 好みセクションの生成
+                generatePreferencesSection(profile.preferences);
+                
+                // フッターの生成
+                generateContactFooter(profile.contact);
+                
+            } catch (error) {
+                console.error('プロフィールデータの読み込みに失敗しました:', error);
+            }
+        }
+        
+        // 自己紹介セクションを生成
+        function generateAboutSection(about) {
+            const section = document.getElementById('about-section');
+            section.innerHTML = `
+                <h2 class="text-2xl sm:text-3xl font-bold text-indigo-700 mb-4 flex items-center">
+                    <span class="mr-3">${about.icon}</span> ${about.title} (About Me)
+                </h2>
+                <div class="bg-indigo-50 p-6 rounded-2xl border-l-4 border-indigo-400">
+                    <p class="text-gray-700 leading-relaxed text-lg">
+                        ${about.introduction}
+                    </p>
+                    <p class="mt-4 text-gray-700 leading-relaxed text-lg">
+                        ${about.motto}
+                    </p>
+                </div>
+            `;
+        }
+        
+        // 趣味セクションを生成
+        function generateHobbiesSection(hobbies) {
+            const section = document.getElementById('hobbies-section');
+            const hobbiesList = hobbies.list.map(hobby => `
+                <li class="flex items-start text-lg text-gray-700">
+                    <span class="text-indigo-500 font-bold mr-3 mt-1">✓</span>
+                    <span class="flex-1">
+                        ${hobby.name}: ${hobby.description}
+                    </span>
+                </li>
+            `).join('');
+            
+            section.innerHTML = `
+                <h2 class="text-2xl sm:text-3xl font-bold text-indigo-700 mb-6 flex items-center">
+                    <span class="mr-3">${hobbies.icon}</span> ${hobbies.title} (Hobbies)
+                </h2>
+                <ul class="space-y-3">
+                    ${hobbiesList}
+                </ul>
+            `;
+        }
+        
+        // 好みセクションを生成
+        function generatePreferencesSection(preferences) {
+            const section = document.getElementById('preferences-section');
+            const categoriesList = preferences.categories.map(category => `
+                <div class="flex flex-col md:flex-row bg-gray-50 p-4 rounded-xl shadow-sm border border-gray-200">
+                    <div class="md:w-1/4 font-bold text-indigo-700 text-lg mb-2 md:mb-0 flex items-center">
+                        <span class="${category.iconColor} mr-2 text-xl">${category.icon}</span> ${category.category}
+                    </div>
+                    <div class="md:w-3/4 flex flex-col space-y-3">
+                        ${category.items.map((item, index) => `
+                            <div class="text-gray-700 ${index > 0 ? 'pt-3 border-t border-gray-200' : ''}">
+                                <p class="font-semibold text-gray-900 mb-0.5 text-base">
+                                    ${item.title}
+                                </p>
+                                <p class="text-gray-600 text-sm leading-relaxed">
+                                    ${item.description}
+                                </p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+            
+            section.innerHTML = `
+                <h2 class="text-2xl sm:text-3xl font-bold text-indigo-700 mb-6 flex items-center">
+                    <span class="mr-3">${preferences.icon}</span> ${preferences.title} (My Preferences)
+                </h2>
+                <div class="space-y-4">
+                    ${categoriesList}
+                </div>
+            `;
+        }
+        
+        // フッターを生成
+        function generateContactFooter(contact) {
+            const footer = document.getElementById('contact-footer');
+            footer.innerHTML = `
+                <p class="text-sm">
+                    連絡先：${contact.email} / ${contact.social}
+                </p>
+            `;
+        }
+        
+        // ページ読み込み時にプロフィールデータを読み込む
+        document.addEventListener('DOMContentLoaded', loadProfile);
+    </script>
 
 </body>
 </html>
