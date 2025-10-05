@@ -73,10 +73,29 @@
           ]
         },
         {
+          "category": "ゲーム",
+          "icon": "🎮",
+          "iconColor": "text-blue-500",
+          "items": [
+            {
+              "title": "ファイアーエムブレム",
+              "description": "騎士物語が大好き。"
+            },
+            {
+              "title": "ジャンル: 任天堂",
+              "description": "マリオ、ポケモン、カービィ、ゼルダ、スプラトゥーン、スマブラ"
+            }
+          ]
+        },
+        {
           "category": "映画",
           "icon": "🎬",
           "iconColor": "text-yellow-500",
           "items": [
+            {
+              "title": "ディズニー映画",
+              "description": "ミュージカルがとても好きです"
+            },
             {
               "title": "猫の恩返し",
               "description": "心温まるストーリーと独特の世界観が魅力的です。"
@@ -89,24 +108,24 @@
           "iconColor": "text-green-500",
           "items": [
             {
-              "title": "本",
-              "description": "アーサー王伝説、レーエンデ国物語"
+              "title": "小説",
+              "description": "アーサー王伝説、レーエンデ国物語、ドン・キホーテ"
             },
             {
               "title": "マンガ",
-              "description": "ONE PIECE、鬼滅の刃、ハヤテのごとく、神のみぞ知るセカイ"
+              "description": "ONE PIECE、テニスの王子様、ハンターハンター、鬼滅の刃、ハヤテのごとく、神のみぞ知るセカイ、恋するワンピース、黒子のバスケ、左門くんはサモナー、桜蘭高校ホスト部、ローカル女子の遠吠え、八十亀ちゃんかんさつにっき、トモダチヅクリ"
             },
             {
               "title": "アニメ",
-              "description": "きらら、ヤマノススメ"
+              "description": "きらら、ヤマノススメ、ブルーロック、斉木楠雄のΨ難、ハナヤマタ、かぐや様は告らせたい、クレヨンしんちゃん"
             },
             {
               "title": "映画大好きポンポさん",
-              "description": "クリエイターの矜持を描いた作品で尊敬します。"
+              "description": "クリエイターの矜持を描いた作品です。"
             },
             {
               "title": "ラブライブ",
-              "description": "歌がとてもいいです。"
+              "description": "歌がとてもいいです。カラオケが好きから大好きになりました。また、二次創作が活発で楽しいです。"
             }
           ]
         }
@@ -133,6 +152,24 @@
           "path": "./public/img/intp-t.png",
           "alt": "MBTI診断2",
           "caption": "INTP-T"
+        },
+        {
+          "filename": "tire-poke.png",
+          "path": "./public/img/tire-poke.png",
+          "alt": "好きなポケモン（2025）",
+          "caption": "好きなポケモン"
+        },
+        {
+          "filename": "tire-nijisanji.png",
+          "path": "./public/img/tire-nijisanji.png",
+          "alt": "にじさんじの好きなライバー（2025）",
+          "caption": "にじさんじの好きなライバー"
+        },
+        {
+          "filename": "tire-rest.png",
+          "path": "./public/img/tire-rest.png",
+          "alt": "好きなファミレス（2025）",
+          "caption": "好きなファミレス"
         }
       ]
     },
