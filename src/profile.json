@@ -119,14 +119,14 @@
         {
           "filename": "personal.png",
           "path": "./public/img/personal.png",
-          "alt": "パーソナル画像",
-          "caption": "私の個人的な画像です"
+          "alt": "8性格",
+          "caption": "性格診断"
         },
         {
           "filename": "infj-panda.png",
           "path": "./public/img/infj-panda.png",
-          "alt": "INFJ パンダ",
-          "caption": "INFJ性格タイプを表現したパンダのイラスト"
+          "alt": "MBTI診断",
+          "caption": "INFJ"
         }
       ]
     },
