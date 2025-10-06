@@ -44,6 +44,18 @@
           "iconColor": "text-purple-500",
           "links": [
             {
+              "name": "Web Audio ピアノ",
+              "url": "https://junjanjon.github.io/profile/piano.html",
+              "description": "キーボードが弾けます",
+              "icon": "🎹"
+            },
+            {
+              "name": "プログラマーの三大美徳",
+              "url": "https://junjanjon.github.io/profile/programming.html",
+              "description": "座右の銘の解説",
+              "icon": "📜"
+            },
+            {
               "name": "フレンボタン",
               "url": "https://furen-button.github.io/furen-button/",
               "description": "ファンサイト",
