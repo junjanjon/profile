@@ -80,7 +80,12 @@
             <!-- JavaScript で動的に生成されます -->
         </section>
 
-        <!-- 2. 趣味セクション -->
+        <!-- 2. リンク集セクション -->
+        <section id="links-section" class="mb-12">
+            <!-- JavaScript で動的に生成されます -->
+        </section>
+
+        <!-- 3. 趣味セクション -->
         <section id="hobbies-section" class="mb-12">
             <!-- JavaScript で動的に生成されます -->
         </section>
@@ -166,6 +171,9 @@
                 // 自己紹介セクションの生成
                 generateAboutSection(profile.about);
                 
+                // リンク集セクションの生成
+                generateLinksSection(profile.links);
+                
                 // 趣味セクションの生成
                 generateHobbiesSection(profile.hobbies);
                 
@@ -197,6 +205,54 @@
                     <p class="mt-4 text-gray-700 leading-relaxed text-lg">
                         ${about.motto}
                     </p>
+                </div>
+            `;
+        }
+        
+        // リンク集セクションを生成
+        function generateLinksSection(links) {
+            const section = document.getElementById('links-section');
+            const categoriesList = links.categories.map(category => `
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <span class="${category.iconColor} mr-2 text-2xl">${category.icon}</span>
+                        ${category.category}
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        ${category.links.map(link => `
+                            <a href="${link.url}" target="_blank" rel="noopener noreferrer" 
+                               class="group bg-white rounded-lg p-4 border border-gray-200 hover:border-indigo-300 hover:shadow-md transition-all duration-300 block">
+                                <div class="flex items-start">
+                                    <span class="text-2xl mr-3 group-hover:scale-110 transition-transform duration-300">
+                                        ${link.icon}
+                                    </span>
+                                    <div class="flex-1">
+                                        <h4 class="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors duration-300">
+                                            ${link.name}
+                                        </h4>
+                                        <p class="text-sm text-gray-600 mt-1 leading-relaxed">
+                                            ${link.description}
+                                        </p>
+                                        <div class="flex items-center mt-2 text-xs text-gray-400">
+                                            <span>リンクを開く</span>
+                                            <svg class="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+            
+            section.innerHTML = `
+                <h2 class="text-2xl sm:text-3xl font-bold text-indigo-700 mb-6 flex items-center">
+                    <span class="mr-3">${links.icon}</span> ${links.title} (Links)
+                </h2>
+                <div>
+                    ${categoriesList}
                 </div>
             `;
         }

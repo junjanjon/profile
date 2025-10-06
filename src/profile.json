@@ -6,7 +6,58 @@
       "title": "自己紹介",
       "icon": "👋",
       "introduction": "こんにちは！私は好奇心旺盛な人間で、新しいことへの挑戦が大好きです。趣味は幅広く、デジタルなものからアナログなものまで楽しんでいます。特に、最近は動画生成の勉強に熱中しており、知識を深めることに喜びを感じています。",
-      "motto": "座右の銘はプログラマーの三大美徳から「怠惰」「憤怒」「傲慢」。日々、この言葉を胸に恥のないように過ごしています。"
+      "motto": "座右の銘はプログラマーの三大美徳から「怠惰」「短気」「傲慢」。日々、この言葉を胸に恥のないように過ごしています。"
+    },
+    "links": {
+      "title": "リンク集",
+      "icon": "🔗",
+      "categories": [
+        {
+          "category": "SNS・プロフィール",
+          "icon": "👤",
+          "iconColor": "text-blue-500",
+          "links": [
+            {
+              "name": "GitHub",
+              "url": "https://github.com/junjanjon",
+              "description": "プログラミングプロジェクトとコード管理",
+              "icon": "🐙"
+            }
+          ]
+        },
+        {
+          "category": "技術・学習",
+          "icon": "💻",
+          "iconColor": "text-green-500",
+          "links": [
+            {
+              "name": "Qiita",
+              "url": "https://qiita.com/JunkiHiroi",
+              "description": "技術記事の投稿とナレッジシェア",
+              "icon": "📚"
+            }
+          ]
+        },
+        {
+          "category": "作品・ポートフォリオ",
+          "icon": "🎨",
+          "iconColor": "text-purple-500",
+          "links": [
+            {
+              "name": "フレンボタン",
+              "url": "https://furen-button.github.io/furen-button/",
+              "description": "ファンサイト",
+              "icon": "🎠"
+            },
+            {
+              "name": "YouTube",
+              "url": "https://www.youtube.com/@master-j-abc",
+              "description": "コーヴァスのなきごえ",
+              "icon": "📺"
+            }
+          ]
+        }
+      ]
     },
     "hobbies": {
       "title": "趣味",
