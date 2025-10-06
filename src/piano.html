@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Audio ピアノ</title>
+    <!-- Tailwind CSS CDN (for aesthetics) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* simple-keyboardのCSSを読み込む */
+        @import url("https://cdn.jsdelivr.net/npm/simple-keyboard@latest/build/css/index.css");
+
+        /* Tailwindのデフォルトフォントを適用 */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background-color: #ffffff;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-radius: 1rem;
+            padding: 2rem;
+        }
+
+        /* simple-keyboardのキーにカスタムスタイルを適用 */
+        .simple-keyboard {
+            padding: 0;
+            border-radius: 0.5rem;
+        }
+
+        /* 押されたキーに視覚的なフィードバックを追加 */
+        .simple-keyboard .hg-button.active {
+            background-color: #4f46e5; /* indigo-600 */
+            color: white;
+            box-shadow: 0 0 10px rgba(79, 70, 229, 0.8);
+            transform: scale(0.98);
+            transition: all 0.05s ease-out;
+        }
+        
+        /* 鍵盤のキーの色分け */
+        .simple-keyboard .a,
+        .simple-keyboard .s,
+        .simple-keyboard .d,
+        .simple-keyboard .f,
+        .simple-keyboard .g,
+        .simple-keyboard .h,
+        .simple-keyboard .j,
+        .simple-keyboard .k {
+            background-color: #e5e7eb; /* light gray for piano keys */
+            border: 1px solid #d1d5db;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold text-center mb-4 text-gray-800">バーチャル Web Audio ピアノ</h1>
+        <p id="status-message" class="text-center mb-6 text-indigo-600 font-medium">
+            キーボードの 'A'、'S'、'D'、'F'、'G'、'H'、'J'、'K' キーで音が出ます。
+        </p>
+        
+        <!-- simple-keyboardのコンテナ -->
+        <div class="simple-keyboard"></div>
+
+        <div class="mt-8 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+            <h2 class="text-xl font-semibold mb-2 text-gray-700">対応する鍵盤 (C4からC5まで)</h2>
+            <code class="block whitespace-pre-wrap text-sm text-gray-600">
+                A: C4 (ド), S: D4 (レ), D: E4 (ミ), F: F4 (ファ)
+                G: G4 (ソ), H: A4 (ラ), J: B4 (シ), K: C5 (高ド)
+            </code>
+        </div>
+    </div>
+
+    <!-- simple-keyboardのJSを読み込む -->
+    <script src="https://cdn.jsdelivr.net/npm/simple-keyboard@latest/build/index.js"></script>
+
+    <script>
+        // Web Audio API の初期化
+        let audioContext;
+        const noteFrequencies = {
+            // C4, D4, E4, F4, G4, A4, B4, C5 (White keys starting from Middle C)
+            "a": 261.63, // C4
+            "s": 293.66, // D4
+            "d": 329.63, // E4
+            "f": 349.23, // F4
+            "g": 392.00, // G4
+            "h": 440.00, // A4
+            "j": 493.88, // B4
+            "k": 523.25  // C5
+            // 必要に応じて他のキーにも音を割り当てられます
+        };
+
+        const statusMessage = document.getElementById('status-message');
+
+        /**
+         * オーディオコンテキストを初期化/再開する
+         */
+        function initializeAudioContext() {
+            if (!audioContext) {
+                try {
+                    // AudioContextの作成
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    statusMessage.textContent = "オーディオコンテキストがアクティブです。鍵盤を押して演奏してください。";
+                } catch (e) {
+                    statusMessage.textContent = `エラー: Web Audio APIが利用できません (${e.message})`;
+                    console.error("Web Audio APIの初期化に失敗しました:", e);
+                    return false;
+                }
+            }
+            
+            // サスペンド状態の場合、再開を試みる（初回ユーザー操作で実行される）
+            if (audioContext.state === 'suspended') {
+                audioContext.resume().then(() => {
+                    console.log("AudioContextが再開されました。");
+                }).catch(err => {
+                    console.error("AudioContextの再開に失敗しました:", err);
+                });
+            }
+            return true;
+        }
+
+        /**
+         * 指定された周波数で音を再生する
+         * @param {number} frequency - 音の周波数（Hz）
+         * @param {number} duration - 音の長さ（秒）
+         */
+        function playNote(frequency, duration = 0.3) {
+            if (!initializeAudioContext() || audioContext.state !== 'running') {
+                console.log("AudioContextが実行されていません。");
+                return;
+            }
+
+            // 1. オシレーター（音源）を作成
+            const oscillator = audioContext.createOscillator();
+            
+            // 2. ゲインノード（音量制御）を作成
+            const gainNode = audioContext.createGain();
+
+            // 3. 音源を設定 (サイン波が最もシンプルでピアノっぽい音に近い)
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+
+            // 4. ADエンベロープ（アタック・ディケイ）を適用して、クリック音を軽減し、より自然な音にする
+            const attackTime = 0.02; // アタック（立ち上がり）時間
+            const releaseTime = duration * 0.8; // リリース（減衰）時間
+            
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            // アタック: 音量を急激に上げる
+            gainNode.gain.linearRampToValueAtTime(0.4, audioContext.currentTime + attackTime);
+            // ディケイ＆リリース: 少しの間持続させ、その後減衰させる
+            gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + duration);
+
+            // 5. ノードを接続 (オシレーター -> ゲイン -> 出力先)
+            oscillator.connect(gainNode).connect(audioContext.destination);
+
+            // 6. 再生開始と停止
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration + 0.05); // 少し余裕を持たせて停止
+        }
+
+
+        // simple-keyboard の初期化
+        const keyboard = new window.SimpleKeyboard.default({
+            // QWERTYレイアウトを使用
+            layout: {
+                default: [
+                    "q w e r t y u i o p [ ]",
+                    "a s d f g h j k l ; '",
+                    "{shift} z x c v b n m , . / {backspace}"
+                ]
+            },
+            
+            // キーが押されたときの処理
+            onKeyPress: (input) => {
+                // simple-keyboardは文字を小文字で返す
+                const key = input;
+                if (noteFrequencies[key]) {
+                    // 対応する周波数があれば音を再生
+                    playNote(noteFrequencies[key]);
+                    // 押されたキーにクラスを付けて視覚的なフィードバック
+                    keyboard.addButtonTheme(key, "active");
+                }
+            },
+            
+            // キーが離されたときの処理 (今回はキーダウンで音を再生し、短い時間で自動停止させるため、このイベントは視覚的なフィードバックに使用)
+            onKeyReleased: (input) => {
+                const key = input;
+                if (noteFrequencies[key]) {
+                    // activeクラスを削除
+                    keyboard.removeButtonTheme(key, "active");
+                }
+            },
+
+            // 物理キーボードとの連携を有効化 (Web Audioとの連携に必須)
+            physicalKeyboardHighlight: true,
+            physicalKeyboardHighlightPress: true, // 押した瞬間にハイライト
+            physicalKeyboardHighlightBgColor: '#6366f1', // indigo-500
+            
+            // 入力フィールドは不要なので無効化
+            input: '',
+            syncInstanceInputs: false,
+        });
+
+        // 物理キーボードイベントの処理
+        document.addEventListener('keydown', (e) => {
+            // ブラウザのデフォルトの繰り返し動作を避けるため、リピートキーを無視
+            if (e.repeat) return; 
+
+            const key = e.key.toLowerCase();
+            
+            if (noteFrequencies[key]) {
+                e.preventDefault(); // ブラウザのデフォルト動作（例: fキーで検索）を抑制
+                // オーディオコンテキストをアクティブにする
+                initializeAudioContext(); 
+                // 音を再生
+                playNote(noteFrequencies[key]);
+                
+                // simple-keyboardのボタンにカスタムCSS (.active) を適用
+                keyboard.addButtonTheme(key, "active");
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            const key = e.key.toLowerCase();
+            
+            if (noteFrequencies[key]) {
+                 // simple-keyboardのボタンからCSSを解除
+                keyboard.removeButtonTheme(key, "active");
+            }
+        });
+
+        // 初回ロード時にオーディオコンテキストの初期化メッセージを表示
+        if (audioContext && audioContext.state === 'suspended') {
+             statusMessage.textContent = "音を鳴らすには、キーボードのキーを押すか、画面上のボタンを一度クリックしてください。";
+        }
+
+    </script>
+</body>
+</html>
