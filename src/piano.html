@@ -46,6 +46,7 @@
         }
         
         /* 鍵盤のキーの色分け */
+        /* 白鍵 */
         .simple-keyboard .a,
         .simple-keyboard .s,
         .simple-keyboard .d,
@@ -57,13 +58,24 @@
             background-color: #e5e7eb; /* light gray for piano keys */
             border: 1px solid #d1d5db;
         }
+
+        /* 黒鍵のスタイルを追加 */
+        .simple-keyboard .w,
+        .simple-keyboard .e,
+        .simple-keyboard .t,
+        .simple-keyboard .y,
+        .simple-keyboard .u {
+            background-color: #4b5563; /* Dark gray for black keys */
+            color: white;
+            border: 1px solid #374151;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 class="text-3xl font-bold text-center mb-4 text-gray-800">バーチャル Web Audio ピアノ</h1>
         <p id="status-message" class="text-center mb-6 text-indigo-600 font-medium">
-            キーボードの 'A'、'S'、'D'、'F'、'G'、'H'、'J'、'K' キーで音が出ます。
+            キーボードの **A, S, D, F, G, H, J, K** (白鍵) と **W, E, T, Y, U** (黒鍵) で音が出ます。
         </p>
         
         <!-- simple-keyboardのコンテナ -->
@@ -72,8 +84,8 @@
         <div class="mt-8 p-4 bg-gray-50 border border-gray-200 rounded-lg">
             <h2 class="text-xl font-semibold mb-2 text-gray-700">対応する鍵盤 (C4からC5まで)</h2>
             <code class="block whitespace-pre-wrap text-sm text-gray-600">
-                A: C4 (ド), S: D4 (レ), D: E4 (ミ), F: F4 (ファ)
-                G: G4 (ソ), H: A4 (ラ), J: B4 (シ), K: C5 (高ド)
+                **白鍵**: A(C4/ド), S(D4/レ), D(E4/ミ), F(F4/ファ), G(G4/ソ), H(A4/ラ), J(B4/シ), K(C5/高ド)
+                **黒鍵**: W(C#4/Db4), E(D#4/Eb4), T(F#4/Gb4), Y(G#4/Ab4), U(A#4/Bb4)
             </code>
         </div>
     </div>
@@ -85,7 +97,7 @@
         // Web Audio API の初期化
         let audioContext;
         const noteFrequencies = {
-            // C4, D4, E4, F4, G4, A4, B4, C5 (White keys starting from Middle C)
+            // White Keys: C4, D4, E4, F4, G4, A4, B4, C5 (Bottom row: A, S, D, F, G, H, J, K)
             "a": 261.63, // C4
             "s": 293.66, // D4
             "d": 329.63, // E4
@@ -93,8 +105,14 @@
             "g": 392.00, // G4
             "h": 440.00, // A4
             "j": 493.88, // B4
-            "k": 523.25  // C5
-            // 必要に応じて他のキーにも音を割り当てられます
+            "k": 523.25, // C5
+
+            // Black Keys: C#4, D#4, F#4, G#4, A#4 (Top row: W, E, T, Y, U)
+            "w": 277.18, // C#4/Db4
+            "e": 311.13, // D#4/Eb4
+            "t": 369.99, // F#4/Gb4
+            "y": 415.30, // G#4/Ab4
+            "u": 466.16  // A#4/Bb4
         };
 
         const statusMessage = document.getElementById('status-message');
