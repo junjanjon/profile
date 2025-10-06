@@ -111,9 +111,28 @@
                 </svg>
             </button>
             
+            <!-- 前の画像ボタン -->
+            <button id="modal-prev" class="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 bg-gray-800 bg-opacity-50 text-white rounded-full p-3 hover:bg-opacity-75 transition-all duration-300 opacity-0 hover:opacity-100">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </button>
+            
+            <!-- 次の画像ボタン -->
+            <button id="modal-next" class="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 bg-gray-800 bg-opacity-50 text-white rounded-full p-3 hover:bg-opacity-75 transition-all duration-300 opacity-0 hover:opacity-100">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </button>
+            
             <!-- 拡大画像表示エリア -->
-            <div class="flex-1 flex items-center justify-center p-2 min-h-0 overflow-hidden">
+            <div class="flex-1 flex items-center justify-center p-2 min-h-0 overflow-hidden relative group">
                 <img id="modal-image" src="" alt="" class="max-w-full max-h-full w-auto h-auto object-contain block" />
+            </div>
+            
+            <!-- 画像インジケーター -->
+            <div id="modal-indicator" class="absolute bottom-20 left-1/2 transform -translate-x-1/2 flex space-x-2 bg-gray-800 bg-opacity-50 rounded-full px-4 py-2">
+                <!-- JavaScript で動的に生成されます -->
             </div>
             
             <!-- キャプション部分 -->
@@ -126,12 +145,19 @@
 
     <!-- JavaScript でプロフィールデータを読み込み、動的に表示 -->
     <script>
+        // グローバル変数
+        let currentImageIndex = 0;
+        let imageGallery = [];
+        
         // JSONデータを読み込む関数
         async function loadProfile() {
             try {
                 const response = await fetch('./profile.json');
                 const data = await response.json();
                 const profile = data.profile;
+                
+                // 画像ギャラリーをグローバル変数に保存
+                imageGallery = profile.images.gallery;
                 
                 // ヘッダー情報の設定
                 document.getElementById('profile-title').textContent = profile.title;
@@ -244,7 +270,7 @@
                             data-modal-src="${image.path}"
                             data-modal-alt="${image.alt}"
                             data-modal-caption="${image.caption}"
-                            onclick="openImageModal('${image.path}', '${image.alt}', '${image.caption}')"
+                            onclick="openImageModal(${index})"
                         />
                     </div>
                     <div class="p-4">
@@ -275,17 +301,32 @@
         }
         
         // 画像モーダル機能
-        function openImageModal(imageSrc, imageAlt, imageCaption) {
+        function openImageModal(imageIndex) {
+            currentImageIndex = imageIndex;
+            showCurrentImage();
+            
+            const modal = document.getElementById('image-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('modal-enter');
+            document.body.style.overflow = 'hidden';
+            
+            updateNavigationButtons();
+            createImageIndicators();
+        }
+        
+        function showCurrentImage() {
             const modal = document.getElementById('image-modal');
             const modalImage = document.getElementById('modal-image');
             const modalTitle = document.getElementById('modal-title');
             const modalDescription = document.getElementById('modal-description');
             const modalContainer = modal.querySelector('.relative');
             
-            modalImage.src = imageSrc;
-            modalImage.alt = imageAlt;
-            modalTitle.textContent = imageAlt;
-            modalDescription.textContent = imageCaption;
+            const currentImage = imageGallery[currentImageIndex];
+            
+            modalImage.src = currentImage.path;
+            modalImage.alt = currentImage.alt;
+            modalTitle.textContent = currentImage.alt;
+            modalDescription.textContent = currentImage.caption;
             
             // 画像が読み込まれたらアスペクト比に応じてモーダルサイズを調整
             modalImage.onload = function() {
@@ -306,9 +347,58 @@
                 }
             };
             
-            modal.classList.remove('hidden');
-            modal.classList.add('modal-enter');
-            document.body.style.overflow = 'hidden'; // スクロールを無効化
+            updateImageIndicators();
+        }
+        
+        function nextImage() {
+            currentImageIndex = (currentImageIndex + 1) % imageGallery.length;
+            showCurrentImage();
+            updateNavigationButtons();
+        }
+        
+        function prevImage() {
+            currentImageIndex = (currentImageIndex - 1 + imageGallery.length) % imageGallery.length;
+            showCurrentImage();
+            updateNavigationButtons();
+        }
+        
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('modal-prev');
+            const nextBtn = document.getElementById('modal-next');
+            
+            // ループ機能があるので常に両方のボタンを表示
+            prevBtn.style.display = 'block';
+            nextBtn.style.display = 'block';
+        }
+        
+        function createImageIndicators() {
+            const indicator = document.getElementById('modal-indicator');
+            const dots = imageGallery.map((_, index) => `
+                <div class="w-2 h-2 rounded-full cursor-pointer transition-colors duration-300 ${
+                    index === currentImageIndex ? 'bg-white' : 'bg-white bg-opacity-50'
+                }" onclick="goToImage(${index})"></div>
+            `).join('');
+            
+            indicator.innerHTML = dots;
+        }
+        
+        function updateImageIndicators() {
+            const indicator = document.getElementById('modal-indicator');
+            const dots = indicator.children;
+            
+            for (let i = 0; i < dots.length; i++) {
+                if (i === currentImageIndex) {
+                    dots[i].className = 'w-2 h-2 rounded-full cursor-pointer transition-colors duration-300 bg-white';
+                } else {
+                    dots[i].className = 'w-2 h-2 rounded-full cursor-pointer transition-colors duration-300 bg-white bg-opacity-50';
+                }
+            }
+        }
+        
+        function goToImage(index) {
+            currentImageIndex = index;
+            showCurrentImage();
+            updateNavigationButtons();
         }
         
         function closeImageModal() {
@@ -326,9 +416,15 @@
         function setupModalEventListeners() {
             const modal = document.getElementById('image-modal');
             const closeButton = document.getElementById('modal-close');
+            const prevButton = document.getElementById('modal-prev');
+            const nextButton = document.getElementById('modal-next');
             
             // 閉じるボタンのクリック
             closeButton.addEventListener('click', closeImageModal);
+            
+            // ナビゲーションボタンのクリック
+            prevButton.addEventListener('click', prevImage);
+            nextButton.addEventListener('click', nextImage);
             
             // モーダル背景のクリック
             modal.addEventListener('click', (e) => {
@@ -337,11 +433,36 @@
                 }
             });
             
-            // ESCキーでモーダルを閉じる
+            // キーボード操作
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-                    closeImageModal();
+                if (!modal.classList.contains('hidden')) {
+                    switch(e.key) {
+                        case 'Escape':
+                            closeImageModal();
+                            break;
+                        case 'ArrowLeft':
+                            e.preventDefault();
+                            prevImage();
+                            break;
+                        case 'ArrowRight':
+                            e.preventDefault();
+                            nextImage();
+                            break;
+                    }
                 }
+            });
+            
+            // マウスホバーでナビゲーションボタンを表示
+            modal.addEventListener('mouseenter', () => {
+                if (!modal.classList.contains('hidden')) {
+                    prevButton.classList.add('opacity-100');
+                    nextButton.classList.add('opacity-100');
+                }
+            });
+            
+            modal.addEventListener('mouseleave', () => {
+                prevButton.classList.remove('opacity-100');
+                nextButton.classList.remove('opacity-100');
             });
         }
         
