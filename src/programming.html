@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プログラマーの三大美徳 インタラクティブガイド</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: 元のスライド形式を再設計し、ユーザーが能動的に探索できる対話的な構造を採用。メインナビゲーションとして3つの美徳を表すカードを配置。各カードをクリックすると、その美徳に特化した詳細コンテンツが表示される。中心的な要素として、3つの美徳の「バランス」を視覚化するインタラクティブなレーダーチャートを導入。ユーザーが各美徳を「強調」するボタンをクリックすると、チャートが動的に変化し、バランスが崩れた場合のリスクについての解説が表示される。この設計は、静的な情報の羅列から脱却し、ユーザーが概念間の関係性を視覚的・対話的に理解することを促すために選択された。 -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: 三大美徳（怠惰、短気、傲慢）の定義、実践項目、成果。
+        - Goal: 各美徳を個別に解説しつつ、それらのバランスの重要性という中心的なメッセージを伝える。
+        - Viz/Presentation Method: コンテンツを切り替えるためのカード型UI。美徳間のバランスを示すためのレーダーチャート（Chart.js/Canvas）。
+        - Interaction: カードクリックで表示コンテンツが切り替わる。ボタンクリックでレーダーチャートのデータと解説テキストが動的に更新される。
+        - Justification: 静的なスライドよりも深い理解を促すため、対話的なチャートを採用。ユーザーが自ら操作することで、「バランス」という抽象的な概念を具体的に体感できる。
+        - Library/Method: Vanilla JSによるDOM操作、Chart.jsによるCanvas描画、Tailwind CSSによるレイアウト。
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background-color: #f8f7f4;
+            color: #3d3d3d;
+        }
+        .virtue-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .virtue-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .virtue-card.active {
+            border-color: #4a5568;
+            background-color: #e2e8f0;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="container mx-auto p-4 md:p-8 max-w-5xl">
+
+        <header class="text-center mb-8 md:mb-12">
+            <h1 class="text-3xl md:text-5xl font-bold text-gray-800 mb-2">プログラマーの三大美徳</h1>
+            <p class="text-md md:text-lg text-gray-600">ラリー・ウォールが提唱した、優れたプログラマーの行動原理を探る</p>
+        </header>
+
+        <nav class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 md:mb-12">
+            <div id="nav-laziness" class="virtue-card cursor-pointer bg-white p-6 rounded-lg shadow-md border-2 border-transparent" data-virtue="laziness">
+                <h2 class="text-2xl font-bold text-center text-gray-700">🥇 怠惰 (Laziness)</h2>
+                <p class="text-center text-gray-500 mt-2">労力の最小化を追求する</p>
+            </div>
+            <div id="nav-impatience" class="virtue-card cursor-pointer bg-white p-6 rounded-lg shadow-md border-2 border-transparent" data-virtue="impatience">
+                <h2 class="text-2xl font-bold text-center text-gray-700">🥈 短気 (Impatience)</h2>
+                <p class="text-center text-gray-500 mt-2">パフォーマンスを追求する</p>
+            </div>
+            <div id="nav-hubris" class="virtue-card cursor-pointer bg-white p-6 rounded-lg shadow-md border-2 border-transparent" data-virtue="hubris">
+                <h2 class="text-2xl font-bold text-center text-gray-700">🥉 傲慢 (Hubris)</h2>
+                <p class="text-center text-gray-500 mt-2">品質と信頼性を追求する</p>
+            </div>
+        </nav>
+        
+        <main id="content-container" class="bg-white p-6 md:p-8 rounded-lg shadow-lg">
+            <section id="content-laziness" class="mb-12">
+                <h3 class="text-2xl font-bold mb-4">怠惰 (Laziness)：労力の最小化 🔁</h3>
+                <p class="mb-6 text-gray-700">二度と同じ作業をしたくない、最小限の労力で最大の効果を得たいという強い欲求。これは単なる「サボり」ではなく、未来の労力を削減するための**自動化と先見的な努力**です。</p>
+                <div class="space-y-4">
+                    <div class="p-4 bg-gray-50 rounded-md"><strong>自動化:</strong> 手作業をスクリプトやCI/CDパイプラインに任せる。</div>
+                    <div class="p-4 bg-gray-50 rounded-md"><strong>再利用性:</strong> 関数やモジュールを作成し、コードの重複（DRY原則）を徹底的に避ける。</div>
+                    <div class="p-4 bg-gray-50 rounded-md"><strong>ドキュメント:</strong> 質問に答える手間を減らすため、分かりやすいドキュメントを完璧に仕上げる。</div>
+                </div>
+                <div class="mt-6 p-4 bg-amber-100 text-amber-800 rounded-lg">
+                    <p><strong>成果:</strong> 開発総時間の削減と、誰もが楽に扱える効率的なシステムの構築。</p>
+                </div>
+            </section>
+            
+            <section id="content-impatience" class="mb-12">
+                <h3 class="text-2xl font-bold mb-4">短気 (Impatience)：パフォーマンスの追求 ⚡️</h3>
+                <p class="mb-6 text-gray-700">コンピューターの遅延、非効率な手順、不必要な待ち時間に対する強い不満とイライラ。</p>
+                 <div class="space-y-4">
+                    <div class="p-4 bg-gray-50 rounded-md"><strong>アルゴリズム:</strong> 待ち時間を減らすため、より高速で効率的なデータ構造やアルゴリズムを追求する。</div>
+                    <div class="p-4 bg-gray-50 rounded-md"><strong>先見性:</strong> ユーザーやシステムが次に何を求めるかを予測し、先回りして準備する（例：キャッシュ、プリフェッチ）。</div>
+                    <div class="p-4 bg-gray-50 rounded-md"><strong>応答速度:</strong> システムのレスポンスタイムを極限まで短縮し、ストレスのない体験を提供する。</div>
+                </div>
+                <div class="mt-6 p-4 bg-sky-100 text-sky-800 rounded-lg">
+                    <p><strong>成果:</strong> 高性能なシステムと、ユーザーや開発者自身の生産性の最大化。</p>
+                </div>
+            </section>
+
+            <section id="content-hubris" class="mb-12">
+                <h3 class="text-2xl font-bold mb-4">傲慢 (Hubris)：品質と信頼性の追求 🛡️</h3>
+                <p class="mb-6 text-gray-700">自分の書いたコードが非難されたり、バグで失敗したりすることを絶対に避けたいという、健全な自負心と責任感。</p>
+                <div class="space-y-4">
+                    <div class="p-4 bg-gray-50 rounded-md"><strong>クリーンコード:</strong> 誰が見ても分かりやすく、エレガントで、修正しやすいコード構造を保つ。</div>
+                    <div class="p-4 bg-gray-50 rounded-md"><strong>厳格なテスト:</strong> ユニットテスト、統合テストを徹底し、コードの堅牢性（ロバストネス）を保証する。</div>
+                    <div class="p-4 bg-gray-50 rounded-md"><strong>責任感:</strong> 自分の作品が最高の品質であることに対し、責任と誇りを持つ。</div>
+                </div>
+                <div class="mt-6 p-4 bg-emerald-100 text-emerald-800 rounded-lg">
+                    <p><strong>成果:</strong> 長期的な保守性と、利用者に安心感を与える高い信頼性の確保。</p>
+                </div>
+            </section>
+        </main>
+        
+        <section class="mt-8 md:mt-12 bg-white p-6 md:p-8 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-bold text-center mb-2">美徳のバランスを探る</h2>
+            <p class="text-center text-gray-600 mb-6">優れたプログラマーは、3つの美徳をバランス良く兼ね備えています。しかし、いずれか一つが過剰になると、逆効果になることもあります。下のボタンで各美徳を強調し、その影響をチャートと解説で確認してみましょう。</p>
+            <div class="chart-container">
+                <canvas id="virtuesChart"></canvas>
+            </div>
+            <div id="chart-description" class="mt-6 p-4 bg-stone-100 text-stone-700 rounded-lg text-center min-h-[60px] flex items-center justify-center">
+                <p>理想的な状態。効率、速度、品質が調和しています。</p>
+            </div>
+            <div class="flex justify-center gap-4 mt-6 flex-wrap">
+                <button id="btn-balance" class="px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-800 transition">バランス</button>
+                <button id="btn-laziness" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">怠惰を強調</button>
+                <button id="btn-impatience" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">短気を強調</button>
+                <button id="btn-hubris" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition">傲慢を強調</button>
+            </div>
+        </section>
+
+        <section class="mt-8 md:mt-12 bg-white p-6 md:p-8 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-bold text-center mb-6">まとめ：美徳がもたらす価値</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr>
+                            <th class="py-2 px-4 bg-gray-100 border-b font-bold">美徳</th>
+                            <th class="py-2 px-4 bg-gray-100 border-b font-bold">感情の方向性</th>
+                            <th class="py-2 px-4 bg-gray-100 border-b font-bold">目指す価値</th>
+                            <th class="py-2 px-4 bg-gray-100 border-b font-bold">キーワード</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-2 px-4 border-b">怠惰</td>
+                            <td class="py-2 px-4 border-b">繰り返しへの嫌悪</td>
+                            <td class="py-2 px-4 border-b">効率性</td>
+                            <td class="py-2 px-4 border-b">自動化、再利用</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-2 px-4 border-b">短気</td>
+                            <td class="py-2 px-4 border-b">遅延への怒り</td>
+                            <td class="py-2 px-4 border-b">スピード</td>
+                            <td class="py-2 px-4 border-b">パフォーマンス、先見</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-2 px-4 border-b">傲慢</td>
+                            <td class="py-2 px-4 border-b">批判への恐れ</td>
+                            <td class="py-2 px-4 border-b">品質</td>
+                            <td class="py-2 px-4 border-b">堅牢性、クリーンコード</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navCards = document.querySelectorAll('.virtue-card');
+            
+            function showContent(virtue) {
+                // アクティブカードの更新
+                navCards.forEach(card => {
+                    if (card.dataset.virtue === virtue) {
+                        card.classList.add('active');
+                    } else {
+                        card.classList.remove('active');
+                    }
+                });
+                
+                // 該当セクションにスムーズスクロール
+                const targetSection = document.getElementById(`content-${virtue}`);
+                if (targetSection) {
+                    targetSection.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }
+
+            navCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    showContent(card.dataset.virtue);
+                });
+            });
+
+            const ctx = document.getElementById('virtuesChart').getContext('2d');
+            const chartDescription = document.getElementById('chart-description');
+
+            const chartData = {
+                labels: ['怠惰 (効率性)', '短気 (速度)', '傲慢 (品質)'],
+                datasets: [{
+                    label: '美徳バランス',
+                    data: [8, 8, 8],
+                    backgroundColor: 'rgba(74, 85, 104, 0.2)',
+                    borderColor: 'rgba(74, 85, 104, 1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgba(74, 85, 104, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(74, 85, 104, 1)'
+                }]
+            };
+
+            const virtuesChart = new Chart(ctx, {
+                type: 'radar',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                color: '#3d3d3d'
+                            },
+                            ticks: {
+                                backdropColor: 'rgba(255, 255, 255, 0.75)',
+                                color: '#6b7280',
+                                stepSize: 2
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 10
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            function updateChart(data, description) {
+                virtuesChart.data.datasets[0].data = data;
+                virtuesChart.update();
+                chartDescription.innerHTML = `<p>${description}</p>`;
+            }
+
+            document.getElementById('btn-balance').addEventListener('click', () => {
+                updateChart([8, 8, 8], '理想的な状態。効率、速度、品質が調和しています。');
+            });
+            document.getElementById('btn-laziness').addEventListener('click', () => {
+                updateChart([10, 2, 2], '<strong>過剰な怠惰:</strong> 自動化にこだわりすぎるあまり、単純なタスクが逆に複雑化します。品質や速度を犠牲にした、不完全な「楽」を求めがちです。');
+            });
+            document.getElementById('btn-impatience').addEventListener('click', () => {
+                updateChart([2, 10, 2], '<strong>過剰な短気:</strong> 目先の速度だけを求め、場当たり的な修正を繰り返しがちです。再利用性やコードの品質が著しく低下し、長期的な負債を生みます。');
+            });
+            document.getElementById('btn-hubris').addEventListener('click', () => {
+                updateChart([2, 2, 10], '<strong>過剰な傲慢:</strong> 完璧主義に陥り、細部にこだわりすぎてリリースが遅れます。他者の意見を受け入れず、過剰品質な「芸術品」を作ろうとします。');
+            });
+        });
+    </script>
+</body>
+</html>
