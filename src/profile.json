@@ -154,6 +154,12 @@
           "caption": "INTP-T"
         },
         {
+          "filename": "love-quiz-result-FCRE.png",
+          "path": "./public/img/love-quiz-result-FCRE.png",
+          "alt": "恋愛16タイプ診断",
+          "caption": "FCRE"
+        },
+        {
           "filename": "tire-poke.png",
           "path": "./public/img/tire-poke.png",
           "alt": "好きなポケモン（2025）",
@@ -174,8 +180,7 @@
       ]
     },
     "contact": {
-      "email": "[メールアドレス]",
-      "social": "[SNSリンク]"
+      "social": "https://github.com/junjanjon/profile"
     }
   }
 }
