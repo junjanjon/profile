@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">行の連結器 | Line Connector</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* カスタムスタイル：Interフォントと全体の視覚的な調整 */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="w-full max-w-2xl bg-white p-6 md:p-10 rounded-xl shadow-2xl">
+        
+        <!-- 言語切り替えボタン -->
+        <div class="flex justify-end mb-4">
+            <button onclick="toggleLanguage()" id="lang-toggle"
+                    class="px-3 py-1 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg shadow-sm hover:bg-gray-300 transition duration-150 ease-in-out">
+                Switch to English
+            </button>
+        </div>
+
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 pb-2" id="ui-title">🔄 デリミタ可変 リアルタイム連結器</h1>
+        <p class="text-gray-600 mb-6" id="ui-description">テキストと、改行を置き換える**文字列（デリミタ）**を入力すると、すぐに結果が下に反映されます。</p>
+
+        <!-- 入力エリア -->
+        <label for="input-text" class="block text-sm font-medium text-gray-700 mb-2" id="label-input">① 入力テキスト (複数行)</label>
+        <textarea id="input-text" rows="6" 
+                  oninput="processText()"
+                  class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm font-mono transition duration-150 ease-in-out" 
+                  placeholder="例：
+吾輩は
+猫である。
+名前はまだ無い。"
+        >吾輩は
+猫である。
+名前はまだ無い。</textarea>
+
+        <!-- 置き換え文字列エリア -->
+        <label for="delimiter" class="block text-sm font-medium text-gray-700 mb-2 mt-4" id="label-delimiter">② 置き換える文字列 (デリミタ)</label>
+        <input type="text" id="delimiter" value="|" oninput="processText()"
+               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 text-sm font-mono transition duration-150 ease-in-out shadow-inner"
+               placeholder="例: , やスペース、または好きな文字列">
+
+        <!-- 出力エリア -->
+        <div class="mt-8">
+            <label for="output" class="block text-sm font-medium text-gray-700 mb-2" id="label-output">③ 出力結果 (自動更新)</label>
+            <div id="output" 
+                 class="w-full min-h-[50px] bg-gray-100 p-4 border border-gray-300 rounded-lg text-sm font-mono text-gray-800 break-all whitespace-pre-wrap select-all shadow-inner"
+            >
+                ここに連結された文字列が表示されます。
+            </div>
+        </div>
+        
+        <!-- コピーボタン -->
+        <button onclick="copyToClipboard()" id="copy-button"
+                class="w-full sm:w-auto mt-4 px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-lg shadow-sm hover:bg-green-600 transition duration-150 ease-in-out"
+        >
+            結果をコピー
+        </button>
+    </div>
+
+    <script>
+        // 言語データ
+        const langData = {
+            'ja': {
+                pageTitle: '行の連結器 | Line Connector',
+                title: '🔄 デリミタ可変 リアルタイム連結器',
+                description: 'テキストと改行を置き換える文字列（デリミタ）を入力すると、結合した結果が下に反映されます。',
+                labelInput: '① 入力テキスト (複数行)',
+                placeholderInput: '例：\n吾輩は\n猫である。\n名前はまだ無い。',
+                labelDelimiter: '② 置き換える文字列 (デリミタ)',
+                placeholderDelimiter: '例: , やスペース、または好きな文字列',
+                labelOutput: '③ 結合結果',
+                placeholderOutput: 'ここに結合された文字列が表示されます。',
+                buttonCopy: '結果をコピー',
+                buttonToggle: 'Switch to English',
+                copySuccess: 'コピー完了！',
+                copyFailed: 'コピー失敗',
+                copyEmpty: 'コピーする内容がありません',
+            },
+            'en': {
+                pageTitle: 'Line Connector | 行の連結器',
+                title: '🔄 Variable Delimiter Real-time Line Linker',
+                description: 'Enter your text and the **delimiter string** to replace new lines, and the result will be instantly reflected below.',
+                labelInput: '① Input Text (Multiple Lines)',
+                placeholderInput: 'Example:\nI am\na cat.\nI have no name yet.',
+                labelDelimiter: '② Delimiter String',
+                placeholderDelimiter: 'e.g., , or space, or any custom string',
+                labelOutput: '③ Output Result (Auto Update)',
+                placeholderOutput: 'The concatenated string will appear here.',
+                buttonCopy: 'Copy Result',
+                buttonToggle: '日本語に切り替える',
+                copySuccess: 'Copy Successful!',
+                copyFailed: 'Copy Failed',
+                copyEmpty: 'Nothing to copy',
+            }
+        };
+
+        let currentLang = 'ja';
+
+        /**
+         * UIのテキストを更新します。
+         */
+        function updateUI(lang) {
+            const data = langData[lang];
+            
+            // ページタイトル
+            document.getElementById('page-title').textContent = data.pageTitle;
+
+            // タイトルと説明文の更新
+            document.getElementById('ui-title').textContent = data.title;
+            // HTML要素をそのまま含んでいるため innerHTML を使用
+            document.getElementById('ui-description').innerHTML = data.description; 
+
+            // ラベルの更新
+            document.getElementById('label-input').textContent = data.labelInput;
+            document.getElementById('label-delimiter').textContent = data.labelDelimiter;
+            document.getElementById('label-output').textContent = data.labelOutput;
+            
+            // プレースホルダーの更新
+            document.getElementById('input-text').placeholder = data.placeholderInput;
+            document.getElementById('delimiter').placeholder = data.placeholderDelimiter;
+            
+            // 出力エリアの初期メッセージ更新（まだ連結されていない場合のみ）
+            const outputElement = document.getElementById('output');
+            const jaPlaceholder = langData['ja'].placeholderOutput;
+            const enPlaceholder = langData['en'].placeholderOutput;
+            if (outputElement.textContent === jaPlaceholder || outputElement.textContent === enPlaceholder) {
+                 outputElement.textContent = data.placeholderOutput;
+            }
+            
+            // ボタンのテキスト更新
+            document.getElementById('copy-button').textContent = data.buttonCopy;
+            document.getElementById('lang-toggle').textContent = data.buttonToggle;
+
+            // デリミタ入力フィールドが空の場合、デリミタが日本語の説明であった場合、言語を切り替える
+            const delimiterInput = document.getElementById('delimiter');
+            if (delimiterInput.value === langData['ja'].placeholderDelimiter || delimiterInput.value === langData['en'].placeholderDelimiter) {
+                // ここはユーザーが入力した値なので、自動で変えるのは避ける。初期値の "|" を維持する。
+            }
+        }
+
+        /**
+         * 言語を切り替えます。
+         */
+        function toggleLanguage() {
+            currentLang = (currentLang === 'ja') ? 'en' : 'ja';
+            updateUI(currentLang);
+            processText(); // 言語切り替え後に出力メッセージを最新の状態にリセット
+        }
+
+        /**
+         * テキストエリアの内容を取得し、改行をデリミタに置換して出力します。
+         * oninputイベントによって、入力のたびに自動実行されます。
+         */
+        function processText() {
+            const inputText = document.getElementById('input-text').value;
+            // 新しく追加された入力フィールドからデリミタ文字列を取得
+            const delimiter = document.getElementById('delimiter').value;
+
+            // 正規表現で全ての改行コードをデリミタ変数内の文字列に置換
+            const outputText = inputText.replace(/\r?\n|\r/g, delimiter);
+
+            // 結果を出力エリアに表示
+            document.getElementById('output').textContent = outputText;
+            
+            // コピーボタンのテキストをリセット
+            document.getElementById('copy-button').textContent = langData[currentLang].buttonCopy;
+        }
+
+        /**
+         * 出力結果をクリップボードにコピーします。
+         */
+        function copyToClipboard() {
+            const data = langData[currentLang];
+            const outputElement = document.getElementById('output');
+            const textToCopy = outputElement.textContent;
+            
+            if (!textToCopy || textToCopy === data.placeholderOutput) {
+                // 出力がない場合のメッセージをカスタムUIで表示
+                document.getElementById('copy-button').textContent = data.copyEmpty;
+                return;
+            }
+
+            // テキストを一時的な要素に格納し、選択してコピーします。（iFrame互換性のための処理）
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = textToCopy;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+
+            try {
+                document.execCommand('copy');
+                document.getElementById('copy-button').textContent = data.copySuccess;
+            } catch (err) {
+                console.error('クリップボードへのコピーに失敗しました:', err);
+                document.getElementById('copy-button').textContent = data.copyFailed;
+            } finally {
+                document.body.removeChild(tempTextArea);
+            }
+        }
+
+        // ページ読み込み時に一度だけ実行し、UIの初期化と初期テキストの連結を行います。
+        document.addEventListener('DOMContentLoaded', () => {
+            // 日本語をデフォルトとしてUIを更新
+            updateUI(currentLang);
+            // 初期テキストを連結して表示
+            processText(); 
+        });
+    </script>
+</body>
+</html>
