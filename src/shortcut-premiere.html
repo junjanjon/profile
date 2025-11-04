@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premiere Pro キーボードショートカットビューア</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* キーの基本スタイル */
+        .key {
+            @apply flex items-center justify-center p-1 m-[2px] rounded-lg cursor-pointer select-none text-sm font-semibold transition-all duration-150 shadow-md;
+            height: 3.5rem; /* キーの高さを固定 */
+            min-width: 3.5rem;
+            flex-grow: 1;
+            box-sizing: border-box;
+            background-color: #d1d5db; /* gray-300 */
+            color: #1f2937; /* gray-800 */
+            position: relative;
+            border: 1px solid #9ca3af; /* gray-400 */
+        }
+        /* ホバー時のスタイル */
+        .key:hover {
+            background-color: #f3f4f6; /* gray-100 */
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        /* 選択中のキーのスタイル */
+        .key.active {
+            background-color: #3b82f6; /* blue-500 */
+            color: white;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); /* blue-500 ring */
+        }
+        /* 特殊キーの幅調整 */
+        .key-space {
+            flex-grow: 4;
+            min-width: 15rem;
+        }
+        .key-mod {
+            min-width: 4rem;
+            background-color: #9ca3af; /* gray-400 for modifier keys */
+        }
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 4px;
+        }
+        /* 修飾キーのシンボル強調 */
+        .modifier-symbol {
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+        .shortcut-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        /* レスポンシブ調整: 小さな画面ではキーのサイズを小さくする */
+        @media (max-width: 768px) {
+            .key {
+                height: 3rem;
+                min-width: 2.5rem;
+                font-size: 0.75rem;
+            }
+            .key-space {
+                min-width: 10rem;
+            }
+            .modifier-symbol {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-4 sm:p-8 font-sans">
+
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-6 border-b-4 border-blue-500 pb-2">
+            Premiere Pro キーボードショートカットビューア (Mac)
+        </h1>
+
+        <!-- 説明エリア -->
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+            <p class="text-gray-700 mb-4">
+                キーボード上のキーをクリック/タップすると、そのキーが含まれる全てのPremiere Proショートカットが右側に表示されます。
+            </p>
+            <div id="selected-key-display" class="text-xl font-mono text-center p-3 bg-blue-100 text-blue-800 rounded-lg shadow-inner border border-blue-300">
+                キーを選択してください
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- 仮想キーボードエリア (左側) -->
+            <div id="keyboard-container" class="lg:w-2/3 bg-gray-200 p-4 rounded-xl shadow-xl border-t-8 border-gray-300">
+                <!-- キーボードグリッドはJSで挿入されます -->
+            </div>
+
+            <!-- ショートカット表示エリア (右側) -->
+            <div class="lg:w-1/3">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 pt-2">
+                    関連ショートカット
+                </h2>
+                <div id="shortcuts-output" class="shortcut-list bg-white p-4 rounded-xl shadow-inner border border-gray-300">
+                    <p class="text-gray-500">キーボードのキーを選択してください。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. データ定義: ユーザー提供データから抽出した主要ショートカット
+        const shortcutData = [
+            // ツール
+            { keys: ["V"], command: "選択ツール" },
+            { keys: ["⇧", "A"], command: "トラックの後方選択ツール" },
+            { keys: ["B"], command: "リップルツール" },
+            { keys: ["U"], command: "スライドツール" },
+            { keys: ["P"], command: "ペンツール" },
+            { keys: ["T"], command: "横書き文字ツール" },
+            // ファイル/編集
+            { keys: ["⌘", ","], command: "設定… 一般..." },
+            { keys: ["⌘", "Q"], command: "Premiere Pro を終了" },
+            { keys: ["⌥", "⌘", "N"], command: "新規 プロジェクト..." },
+            { keys: ["⌘", "N"], command: "新規 シーケンス..." },
+            { keys: ["⌘", "O"], command: "プロジェクトを開く..." },
+            { keys: ["⌘", "S"], command: "保存" },
+            { keys: ["⌘", "I"], command: "読み込み..." },
+            { keys: ["⌘", "M"], command: "書き出し メディア..." },
+            { keys: ["⌘", "Z"], command: "取り消し" },
+            { keys: ["⇧", "⌘", "Z"], command: "やり直し" },
+            { keys: ["⌘", "X"], command: "カット" },
+            { keys: ["⌘", "C"], command: "コピー" },
+            { keys: ["⌘", "V"], command: "ペースト" },
+            { keys: ["⌘", "A"], command: "すべてを選択" },
+            { keys: ["D"], command: "消去" },
+            { keys: ["⇧", "D"], command: "リップル削除" },
+            { keys: ["⌘", "E"], command: "オリジナルを編集" },
+            // クリップ/シーケンス
+            { keys: ["G"], command: "オーディオゲイン..." },
+            { keys: ["⌘", "R"], command: "速度・デュレーション..." },
+            { keys: ["I"], command: "インサート / インをマーク" },
+            { keys: ["."], command: "上書き" },
+            { keys: ["⌘", "L"], command: "リンク" },
+            { keys: ["⌘", "G"], command: "グループ化" },
+            { keys: ["C"], command: "編集点を追加" },
+            { keys: ["O"], command: "アウトをマーク" },
+            { keys: [";"], command: "リフト" },
+            { keys: [":"], command: "抽出" },
+            { keys: ["Z"], command: "ズームイン" },
+            { keys: ["X"], command: "ズームアウト" },
+            { keys: ["Q"], command: "前の編集点をリップルトリミング" },
+            { keys: ["W"], command: "次の編集点をリップルトリミング" },
+            { keys: ["]"], command: "クリップボリュームを上げる" },
+            { keys: ["["], command: "クリップボリュームを下げる" },
+            { keys: ["⇧", "@"], command: "アクティブフレームを最大化/戻す" },
+            { keys: ["@"], command: "カーソルがあるフレームを最大化/戻す" },
+            { keys: ["⇧", "⌘", "F"], command: "フルスクリーン表示の切り替え" },
+            { keys: ["削除"], command: "選択項目を削除" },
+            // タイムライン移動
+            { keys: ["右"], command: "1 フレーム先へ進む" },
+            { keys: ["左"], command: "1 フレーム前へ戻る" },
+            { keys: ["⇧", "右"], command: "複数フレーム先へ進む" },
+            { keys: ["⇧", "左"], command: "複数フレーム前へ戻る" },
+            { keys: ["上"], command: "前の編集点へ移動" },
+            { keys: ["下"], command: "次の編集点へ移動" },
+            { keys: ["スペースキー"], command: "再生 / 停止" },
+            { keys: ["End"], command: "シーケンス/クリップ終了位置へ移動" },
+            { keys: ["Home"], command: "シーケンス/クリップ開始位置へ移動" },
+        ];
+
+        // 2. キーボードレイアウト定義 (QWERTYベースの簡略化Macレイアウト)
+        const simplifiedLayout = [
+            // Row 1 (QWERTY)
+            { keys: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', 'Delete'] },
+            // Row 2 (ASDF)
+            { keys: ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', ':'] },
+            // Row 3 (ZXCV)
+            { keys: ['Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/'] },
+            // Row 4 (Numbers/Symbols)
+            { keys: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='] },
+        ];
+
+        // キーの表示名とショートカットキー配列内のIDをマッピング
+        const keyMap = {
+            'Option': '⌥', 'Command': '⌘', 'RCommand': '⌘', 'Control': '⌃', 'Shift': '⇧',
+            'Delete': '削除', 'Return': 'リターン', 'Space': 'スペースキー',
+            'Left': '左', 'Right': '右', 'Up': '上', 'Down': '下',
+            'Home': 'Home', 'End': 'End',
+            // その他の文字・記号は自身がID
+        };
+
+        const keyboardContainer = document.getElementById('keyboard-container');
+        const shortcutsOutput = document.getElementById('shortcuts-output');
+        const selectedKeyDisplay = document.getElementById('selected-key-display');
+        
+        /**
+         * ショートカットキーの配列を表示用の文字列に変換する
+         * @param {string[]} keys 
+         * @returns {string}
+         */
+        const formatKeys = (keys) => {
+            return keys.map(key => {
+                let display = key;
+                let colorClass = 'text-gray-900';
+                
+                // 修飾キーのシンボルと色を定義
+                if (key === '⌘') { display = '<span class="modifier-symbol text-blue-600">⌘</span>'; colorClass = 'font-bold'; }
+                else if (key === '⇧') { display = '<span class="modifier-symbol text-red-600">⇧</span>'; colorClass = 'font-bold'; }
+                else if (key === '⌥') { display = '<span class="modifier-symbol text-green-600">⌥</span>'; colorClass = 'font-bold'; }
+                else if (key === '⌃') { display = '<span class="modifier-symbol text-purple-600">⌃</span>'; colorClass = 'font-bold'; }
+                else if (key.length > 1 && key !== 'Home' && key !== 'End' ) { display = `<span class="text-xs text-gray-500">${key}</span>`; }
+                
+                return `<span class="${colorClass} px-0.5">${display}</span>`;
+            }).join(' <span class="text-gray-400 font-bold">+</span> ');
+        };
+
+        /**
+         * キーのクリックイベントハンドラ
+         * @param {string} keyId クリックされたキーのID
+         */
+        const handleKeyClick = (keyId) => {
+            // アクティブ状態の切り替え
+            document.querySelectorAll('.key').forEach(key => key.classList.remove('active'));
+            const clickedKey = document.querySelector(`.key[data-key="${keyId}"]`);
+            if (clickedKey) {
+                clickedKey.classList.add('active');
+            }
+
+            // 選択されたキーの表示を更新
+            let displayKey = keyId;
+            if (keyId === '⌥') displayKey = 'Option (⌥)';
+            else if (keyId === '⌘') displayKey = 'Command (⌘)';
+            else if (keyId === '⇧') displayKey = 'Shift (⇧)';
+            else if (keyId === '⌃') displayKey = 'Control (⌃)';
+            selectedKeyDisplay.innerHTML = `選択中のキー: <span class="text-blue-700 font-extrabold">${displayKey}</span>`;
+
+            // 関連ショートカットをフィルタリング
+            const relevantShortcuts = shortcutData.filter(s => s.keys.includes(keyId));
+
+            // 結果のレンダリング
+            if (relevantShortcuts.length === 0) {
+                shortcutsOutput.innerHTML = `<p class="text-gray-500 p-2">このキーに関連するショートカットは見つかりませんでした。</p>`;
+                return;
+            }
+
+            shortcutsOutput.innerHTML = `<ul class="space-y-3"></ul>`;
+            const ul = shortcutsOutput.querySelector('ul');
+            
+            // コマンド名でソート
+            relevantShortcuts.sort((a, b) => a.command.localeCompare(b.command, 'ja'));
+            
+            relevantShortcuts.forEach(s => {
+                const li = document.createElement('li');
+                li.className = 'flex flex-col sm:flex-row justify-between items-start sm:items-center text-gray-700 border-b pb-2';
+                li.innerHTML = `
+                    <span class="text-sm font-medium mb-1 sm:mb-0">${s.command}</span>
+                    <span class="text-xs font-mono bg-gray-100 px-2 py-1 rounded-md shadow-xs ml-0 sm:ml-2">${formatKeys(s.keys)}</span>
+                `;
+                ul.appendChild(li);
+            });
+        };
+
+        /**
+         * キーボードのHTML要素を生成し、コンテナに挿入する
+         */
+        const renderKeyboard = () => {
+            
+            // QWERTY & 数字行のレンダリング
+            simplifiedLayout.forEach(row => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'keyboard-row';
+                
+                row.keys.forEach(keyId => {
+                    const display = keyMap[keyId] || keyId;
+                    const finalKeyId = keyMap[keyId] || keyId;
+                    
+                    // 特殊キーのクラスとコンテンツを調整
+                    let extraClass = '';
+                    let innerHtml = `<span>${display}</span>`;
+
+                    if (keyId.length > 1 || ['Option', 'Command', 'Control', 'Shift'].includes(keyId)) {
+                        extraClass = 'key-large';
+                        innerHtml = `<span class="text-xs text-gray-500 absolute top-1 left-2">${display}</span><span class="text-lg">${display.length === 1 ? display : ''}</span>`;
+                        if (['⌥', '⌘', '⌃', '⇧'].includes(finalKeyId)) {
+                             extraClass = 'key-mod';
+                             innerHtml = `<span class="modifier-symbol">${display}</span>`;
+                        } else {
+                            innerHtml = `<span>${display}</span>`;
+                        }
+                    }
+
+                    const keyDiv = document.createElement('div');
+                    keyDiv.className = `key ${extraClass}`;
+                    keyDiv.setAttribute('data-key', finalKeyId);
+                    keyDiv.innerHTML = innerHtml;
+                    keyDiv.onclick = () => handleKeyClick(finalKeyId);
+                    rowDiv.appendChild(keyDiv);
+                });
+                keyboardContainer.appendChild(rowDiv);
+            });
+
+            // スペース/修飾キー行とナビゲーションキーのレンダリング
+            const modRowDiv = document.createElement('div');
+            modRowDiv.className = 'keyboard-row mt-6 flex-wrap lg:flex-nowrap justify-between';
+            
+            // 左側修飾キー
+            const modKeysLeft = [
+                { id: 'Control', display: '⌃', widthClass: 'min-w-[4rem]' },
+                { id: 'Option', display: '⌥', widthClass: 'min-w-[4rem]' },
+                { id: 'Command', display: '⌘', widthClass: 'min-w-[5rem]' },
+            ];
+            modKeysLeft.forEach(k => {
+                const finalKeyId = keyMap[k.id] || k.id;
+                const keyDiv = document.createElement('div');
+                keyDiv.className = `key key-mod ${k.widthClass}`;
+                keyDiv.setAttribute('data-key', finalKeyId);
+                keyDiv.innerHTML = `<span class="modifier-symbol">${k.display}</span>`;
+                keyDiv.onclick = () => handleKeyClick(finalKeyId);
+                modRowDiv.appendChild(keyDiv);
+            });
+
+            // スペースキー
+            const spaceKeyDiv = document.createElement('div');
+            spaceKeyDiv.className = `key key-mod key-space bg-gray-300`;
+            spaceKeyDiv.setAttribute('data-key', 'スペースキー');
+            spaceKeyDiv.innerHTML = `<span>Space</span>`;
+            spaceKeyDiv.onclick = () => handleKeyClick('スペースキー');
+            modRowDiv.appendChild(spaceKeyDiv);
+
+            // 右側修飾キー
+            const modKeysRight = [
+                { id: 'RCommand', display: '⌘', widthClass: 'min-w-[5rem]' },
+                { id: 'ROption', display: '⌥', widthClass: 'min-w-[4rem]' },
+            ];
+            modKeysRight.forEach(k => {
+                const finalKeyId = keyMap[k.id] || k.id;
+                const keyDiv = document.createElement('div');
+                keyDiv.className = `key key-mod ${k.widthClass}`;
+                keyDiv.setAttribute('data-key', finalKeyId);
+                keyDiv.innerHTML = `<span class="modifier-symbol">${k.display}</span>`;
+                keyDiv.onclick = () => handleKeyClick(finalKeyId);
+                modRowDiv.appendChild(keyDiv);
+            });
+
+            // ナビゲーションキーエリア
+            const navContainer = document.createElement('div');
+            navContainer.className = 'flex flex-col gap-1 ml-4 mt-4 lg:mt-0';
+            navContainer.style.minWidth = '10rem'; // レイアウト維持
+
+            // Home/End
+            const navRow1 = document.createElement('div');
+            navRow1.className = 'flex justify-end gap-1';
+            ['Home', 'End'].forEach(id => {
+                const keyDiv = document.createElement('div');
+                keyDiv.className = `key min-w-[3rem] h-[3rem] text-xs`;
+                keyDiv.setAttribute('data-key', id);
+                keyDiv.innerHTML = `<span>${id}</span>`;
+                keyDiv.onclick = () => handleKeyClick(id);
+                navRow1.appendChild(keyDiv);
+            });
+            navContainer.appendChild(navRow1);
+
+            // Up arrow
+            const navRow2 = document.createElement('div');
+            navRow2.className = 'flex justify-end gap-1';
+            const upKeyDiv = document.createElement('div');
+            upKeyDiv.className = `key min-w-[3rem] h-[3rem] text-xs ml-auto`;
+            upKeyDiv.setAttribute('data-key', '上');
+            upKeyDiv.innerHTML = `<span>↑</span>`;
+            upKeyDiv.onclick = () => handleKeyClick('上');
+            navRow2.appendChild(upKeyDiv);
+            navContainer.appendChild(navRow2);
+
+            // Left, Down, Right arrows
+            const navRow3 = document.createElement('div');
+            navRow3.className = 'flex justify-end gap-1';
+            ['左', '下', '右'].forEach(id => {
+                const keyDiv = document.createElement('div');
+                keyDiv.className = `key min-w-[3rem] h-[3rem] text-xs`;
+                keyDiv.setAttribute('data-key', id);
+                keyDiv.innerHTML = `<span>${id === '左' ? '←' : (id === '下' ? '↓' : '→')}</span>`;
+                keyDiv.onclick = () => handleKeyClick(id);
+                navRow3.appendChild(keyDiv);
+            });
+            navContainer.appendChild(navRow3);
+
+            modRowDiv.appendChild(navContainer);
+            keyboardContainer.appendChild(modRowDiv);
+        };
+
+        window.onload = () => {
+            renderKeyboard();
+            // 初期表示としてVキーを選択（選択ツール）
+            handleKeyClick('V'); 
+        };
+    </script>
+</body>
+</html>
