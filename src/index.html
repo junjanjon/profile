@@ -75,6 +75,11 @@
         <!-- 区切り線 -->
         <div class="mb-10 border-t border-indigo-100"></div>
 
+        <!-- 0. 今日のハイライト (性格分析からランダム表示) -->
+        <section id="daily-highlight-section" class="mb-12">
+            <!-- JavaScript で動的に生成されます -->
+        </section>
+
         <!-- 1. 自己紹介セクション -->
         <section id="about-section" class="mb-12">
             <!-- JavaScript で動的に生成されます -->
@@ -191,6 +196,73 @@
             }
         }
         
+        // 今日のハイライトを読み込む (性格分析JSONから全項目ランダム表示)
+        async function loadDailyHighlight() {
+            try {
+                const response = await fetch('./hero_personality_analysis.json');
+                const data = await response.json();
+
+                // daily_messages と eight_traits を1つのプールにまとめる
+                const pool = [
+                    ...(data.daily_messages || []).map(item => ({ type: 'message', ...item })),
+                    ...(data.eight_traits || []).map(item => ({ type: 'trait', ...item }))
+                ];
+
+                if (pool.length === 0) return;
+
+                // アクセスするたびランダムに1件抽選
+                const item = pool[Math.floor(Math.random() * pool.length)];
+
+                generateDailyHighlightSection(item);
+            } catch (error) {
+                console.error('今日のハイライトの読み込みに失敗しました:', error);
+            }
+        }
+
+        // 今日のハイライトセクションを生成
+        function generateDailyHighlightSection(item) {
+            const section = document.getElementById('daily-highlight-section');
+
+            let cardInner;
+            if (item.type === 'message') {
+                cardInner = `
+                    <div class="flex items-center mb-3">
+                        <span class="text-2xl mr-3">✨</span>
+                        <span class="inline-block bg-indigo-100 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full">
+                            ${item.category}
+                        </span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">${item.title}</h3>
+                    <p class="text-gray-700 leading-relaxed">${item.content}</p>
+                    ${item.reflection_question ? `
+                        <div class="mt-4 pt-4 border-t border-indigo-100">
+                            <p class="text-sm text-indigo-600 font-medium">💭 ${item.reflection_question}</p>
+                        </div>
+                    ` : ''}
+                `;
+            } else {
+                cardInner = `
+                    <div class="flex items-center mb-3">
+                        <span class="text-2xl mr-3">🎯</span>
+                        <span class="inline-block bg-indigo-100 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full">
+                            No.${item.rank}
+                        </span>
+                    </div>
+                    <h3 class="text-xl font-bold text-indigo-700 mb-3">${item.trait}</h3>
+                    <p class="text-gray-700 leading-relaxed">${item.description}</p>
+                `;
+            }
+
+            section.innerHTML = `
+                <h2 class="text-2xl sm:text-3xl font-bold text-indigo-700 mb-6 flex items-center">
+                    <span class="mr-3">🔮</span> 今日の私 (Today's Highlight)
+                </h2>
+                <div class="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-2xl border border-indigo-100 shadow-sm">
+                    ${cardInner}
+                </div>
+            `;
+        }
+
         // 自己紹介セクションを生成
         function generateAboutSection(about) {
             const section = document.getElementById('about-section');
@@ -524,6 +596,7 @@
         
         // ページ読み込み時にプロフィールデータを読み込む
         document.addEventListener('DOMContentLoaded', () => {
+            loadDailyHighlight();
             loadProfile();
             setupModalEventListeners();
         });
